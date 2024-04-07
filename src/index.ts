@@ -8,26 +8,48 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
-	//
-	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
-	// MY_QUEUE: Queue;
-}
+import handleAPI from "./api";
+
+
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		console.log(JSON.stringify(request.cf, null, 2));
-		return new Response('Hello World!');
+
+		console.log(JSON.stringify(request.body, null, 2));
+		const url = new URL(request.url);
+
+		// if (url == "/api/v1/tasks/work") {
+		// 	// If you did not use `DB` as your binding name, change it here
+		// 	const { results } = await env.DB.prepare(
+		// 		"SELECT * FROM tasks where title = ?"
+		// 	)
+		// 		.bind("work")
+		// 		.all();
+		// 	return Response.json(results);
+		// }
+		//
+		// if (url === "/api/v1/kv") {
+		// 	try {
+		// 		await env.kv_namespace_todoapp.put("foo1", "bar1");
+		// 		let value = await env.kv_namespace_todoapp.get("foo1")
+		// 		if (value === null) {
+		// 			return new Response("Value not found", { status: 404 });
+		// 		}
+		// 		return new Response(value);
+		//
+		// 	}catch (err) {
+		// 		console.error(`KV returned error: ${err}`)
+		// 		return new Response(err, { status: 500 })
+		// 	}
+		// }
+
+		// todoapp server
+		if (url.pathname.startsWith("/todoapp/api/")) {
+			return handleAPI(request, env, ctx);
+		}
+
+		return new Response(
+			"Call /api/v1/tasks/work to see detail of task which has title is work"
+		);
 	},
 };
